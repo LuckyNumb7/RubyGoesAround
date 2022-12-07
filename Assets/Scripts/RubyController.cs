@@ -21,6 +21,10 @@ public class RubyController : MonoBehaviour
     public int currentAmmo;
     public TextMeshProUGUI ammoText;
 
+    public float timeBoosting = 4.0f;
+    float speedBoostTimer;
+    bool isBoosting;
+
     Rigidbody2D rigidbody2d;
     float horizontal;
     float vertical;
@@ -63,6 +67,8 @@ public class RubyController : MonoBehaviour
         LoseTextObject.SetActive(false);
         gameOver = false;
         level = 1;
+
+
     }
 
     public void PlaySound(AudioClip clip)
@@ -82,6 +88,18 @@ public class RubyController : MonoBehaviour
         {
             lookDirection.Set(move.x, move.y);
             lookDirection.Normalize();
+        }
+
+        if (isBoosting == true)
+        {
+            speedBoostTimer -= Time.deltaTime; 
+            speed = 5;
+        
+            if (speedBoostTimer < 0)
+            {
+                isBoosting = false;
+                speed = 3; 
+            }
         }
                 
         animator.SetFloat("Look X", lookDirection.x);
@@ -136,8 +154,8 @@ public class RubyController : MonoBehaviour
     void FixedUpdate()
     {
         Vector2 position = rigidbody2d.position;
-        position.x = position.x + 3.0f * horizontal * Time.deltaTime;
-        position.y = position.y + 3.0f * vertical * Time.deltaTime;
+        position.x = position.x + speed * horizontal * Time.deltaTime;
+        position.y = position.y + speed * vertical * Time.deltaTime;
 
         rigidbody2d.MovePosition(position);
     }
@@ -212,8 +230,6 @@ public class RubyController : MonoBehaviour
             WinTextObject.SetActive(true);
             gameOver = true;
 
-            speed = 0;
-
             backgroundManager.Stop();
             audioSource.clip = WinnerTune;
             audioSource.Play();
@@ -223,6 +239,20 @@ public class RubyController : MonoBehaviour
         }
 
     }
-    
+    public void SpeedBoost(int amount)
+    {
+        if (amount > 0)
+        {
+            speedBoostTimer = timeBoosting;
+            isBoosting = true;
+        }
+    }
+    public void speedDown(int amount)
+    {
+        if(amount > 0)
+        {
+            speed = speed * 0.5f;
+        }
+    }
 }
 
